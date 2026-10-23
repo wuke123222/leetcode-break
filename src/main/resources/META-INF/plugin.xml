@@ -1,0 +1,38 @@
+<idea-plugin url="https://github.com/wuke123222/leetcode-break">
+    <id>dev.leetcodebreak</id>
+    <name>LeetCode Break</name>
+    <vendor url="https://github.com/wuke123222">wuke123222</vendor>
+    <description><![CDATA[
+      <p>Practice LeetCode in your IDE with recommendations based on your project's code.</p>
+      <ul>
+        <li>Use the official LeetCode China or international website in an embedded browser to read, run, and submit solutions.</li>
+        <li>Synchronize real problems, difficulty, topic tags, premium indicators, and accepted status through your website session.</li>
+        <li>Find relevant problems using local source analysis, with file and line references explaining each recommendation.</li>
+        <li>Filter by difficulty, estimated practice time, title, problem ID, or topic.</li>
+        <li>Keep authentication cookies in IntelliJ Password Safe. Project source code is never uploaded.</li>
+      </ul>
+      <p>Requires IntelliJ Platform 2026.2 and a JetBrains Runtime with JCEF. Website verification and premium access remain controlled by LeetCode. The website API may change. Practice times are estimates.</p>
+      <p>Free and open source under the MIT license. This is an independent plugin, not affiliated with or endorsed by LeetCode.</p>
+      <p><a href="https://github.com/wuke123222/leetcode-break">Source code and documentation</a> ·
+      <a href="https://github.com/wuke123222/leetcode-break/issues">Issue tracker</a></p>
+      <p>在开发间隙使用内嵌 LeetCode 官网刷题，支持力扣中国站和国际站。分页同步真实题库与官方通过状态，
+      本地分析项目知识点并提供附文件行号的推荐；登录会话保存在 IDE Password Safe，源码不上传。
+      题目、编辑器、运行与提交均由官网提供。采用 MIT 许可证，免费开源，非 LeetCode 官方插件。</p>
+    ]]></description>
+    <change-notes><![CDATA[
+      <p>Initial release: embedded LeetCode, live problem synchronization, local project recommendations with source references, and Password Safe session persistence.</p>
+      <p>首个版本：内嵌 LeetCode、官方题库同步、附源码位置的项目相关推荐和安全会话保存。</p>
+    ]]></change-notes>
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.jcef</depends>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="LeetCode Break" anchor="right" icon="/icons/leetcodeBreak.svg"
+                    factoryClass="dev.leetcodebreak.ui.LeetCodeToolWindowFactory"/>
+    </extensions>
+    <actions>
+        <action id="LeetCodeBreak.Open" class="dev.leetcodebreak.ui.OpenPracticeAction"
+                text="LeetCode Break — 开始刷题" description="打开项目相关推荐与 LeetCode 网页">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
+</idea-plugin>
