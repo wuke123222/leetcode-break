@@ -3,6 +3,7 @@ package dev.leetcodebreak.analysis;
 import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectFileIndex;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -13,21 +14,10 @@ import java.util.*;
 
 public final class ProjectScanner {
     public Analysis scan(Project project, VirtualFile selected, ProgressIndicator indicator) {
-        var files = new ArrayList<VirtualFile>();
-        boolean[] limited = {false};
-        if (selected != null) files.add(selected);
-        else ReadAction.run(() -> {
-            ProjectFileIndex index = ProjectFileIndex.getInstance(project);
-            index.iterateContent(file -> {
-                indicator.checkCanceled();
-                if (!file.isDirectory() && ScanPolicy.supported(file.getPath())) {
-                    if (files.size() >= ScanPolicy.MAX_FILES) { limited[0] = true; return false; }
-                    files.add(file);
-                }
-                return true;
-            }, file -> !file.is(com.intellij.openapi.vfs.VFileProperty.SYMLINK) && !ScanPolicy.excludedPath(relative(project, file))
-                && !index.isExcluded(file) && !index.isUnderIgnored(file) && !index.isInGeneratedSources(file));
-        });
+        FileSelection selection = selected != null ? new FileSelection(List.of(selected), false) :
+            ReadAction.nonBlocking(() -> collectFiles(project)).expireWith(project).wrapProgress(indicator).executeSynchronously();
+        List<VirtualFile> files = selection.files();
+        boolean limited = selection.limited();
         var evidence = new ArrayList<Evidence>();
         var analyzer = new SourceAnalyzer();
         int scanned = 0, skipped = 0, chars = 0;
@@ -36,21 +26,46 @@ public final class ProjectScanner {
             if (project.isDisposed()) break;
             indicator.setText2(relative(project, file));
             indicator.setFraction((scanned + skipped) / (double) Math.max(1, files.size()));
-            String text = ReadAction.compute(() -> {
-                if (!file.isValid() || file.isDirectory() || file.is(com.intellij.openapi.vfs.VFileProperty.SYMLINK) || !ScanPolicy.supported(file.getPath())
+            String text = ReadAction.<String>nonBlocking(() -> {
+                ProgressManager.checkCanceled();
+                if (project.isDisposed() || !file.isValid() || file.isDirectory() || file.is(com.intellij.openapi.vfs.VFileProperty.SYMLINK) || !ScanPolicy.supported(file.getPath())
                     || file.getLength() > ScanPolicy.MAX_FILE_BYTES || file.getFileType().isBinary()) return null;
                 var document = FileDocumentManager.getInstance().getCachedDocument(file);
                 if (document != null) return document.getTextLength() <= ScanPolicy.MAX_FILE_BYTES ? document.getText() : null;
                 try { return VfsUtilCore.loadText(file); }
                 catch (IOException ignored) { return null; }
-            });
+            }).expireWith(project).wrapProgress(indicator).executeSynchronously();
+            indicator.checkCanceled();
             if (text == null) { skipped++; continue; }
-            if (chars + text.length() > ScanPolicy.MAX_TOTAL_CHARS) { limited[0] = true; break; }
+            if (chars + text.length() > ScanPolicy.MAX_TOTAL_CHARS) { limited = true; break; }
             chars += text.length();
             evidence.addAll(analyzer.analyze(file.getPath(), text));
             scanned++;
         }
-        return new Analysis(evidence, scanned, skipped, limited[0], selected == null ? "当前项目" : selected.getName());
+        return new Analysis(evidence, scanned, skipped, limited, selected == null ? "当前项目" : selected.getName());
+    }
+
+    private record FileSelection(List<VirtualFile> files, boolean limited) {}
+
+    private static FileSelection collectFiles(Project project) {
+        // A pending write action may restart this computation; keep all collection state inside this attempt.
+        var files = new ArrayList<VirtualFile>();
+        boolean[] limited = {false};
+        ProgressManager.checkCanceled();
+        ProjectFileIndex index = ProjectFileIndex.getInstance(project);
+        index.iterateContent(file -> {
+            ProgressManager.checkCanceled();
+            if (!file.isDirectory() && ScanPolicy.supported(file.getPath())) {
+                if (files.size() >= ScanPolicy.MAX_FILES) { limited[0] = true; return false; }
+                files.add(file);
+            }
+            return true;
+        }, file -> {
+            ProgressManager.checkCanceled();
+            return !file.is(com.intellij.openapi.vfs.VFileProperty.SYMLINK) && !ScanPolicy.excludedPath(relative(project, file))
+                && !index.isExcluded(file) && !index.isUnderIgnored(file) && !index.isInGeneratedSources(file);
+        });
+        return new FileSelection(List.copyOf(files), limited[0]);
     }
 
     public static String relative(Project project, VirtualFile file) { return relative(project, file.getPath()); }

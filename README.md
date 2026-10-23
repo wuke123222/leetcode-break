@@ -10,7 +10,7 @@ Practice on the official LeetCode website inside JetBrains IDEs, with local proj
 
 ## 使用
 
-1. `Settings → Plugins → ⚙ → Install Plugin from Disk…`，选择 `build/distributions/leetcode-break-0.1.0.zip`，按 IDE 提示重启。
+1. `Settings → Plugins → ⚙ → Install Plugin from Disk…`，选择 `build/distributions/leetcode-break-0.1.1.zip`，按 IDE 提示重启。
 2. 在右侧打开 **LeetCode Break**，或使用 `Tools → LeetCode Break — 开始刷题`。
 3. 选择力扣中国站 / LeetCode 国际站。点击 **同步官方题库**，分页获取该站点的真实题目、难度、标签和会员标记。
 4. 如站点要求登录或网页验证，点击 **打开 LeetCode**，在官方页面完成，然后点击网页上方 **同步官方题库**。这条路径使用当前内嵌浏览器的会话，并同步官方已通过状态。

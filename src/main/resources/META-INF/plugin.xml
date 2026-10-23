@@ -20,8 +20,8 @@
       题目、编辑器、运行与提交均由官网提供。采用 MIT 许可证，免费开源，非 LeetCode 官方插件。</p>
     ]]></description>
     <change-notes><![CDATA[
-      <p>Initial release: embedded LeetCode, live problem synchronization, local project recommendations with source references, and Password Safe session persistence.</p>
-      <p>首个版本：内嵌 LeetCode、官方题库同步、附源码位置的项目相关推荐和安全会话保存。</p>
+      <p>0.1.1: Replace deprecated project-scanning APIs with cancellable, non-blocking read actions. Scans yield to IDE writes and safely retry without duplicate file entries.</p>
+      <p>0.1.1：移除项目扫描中的弃用 API；扫描在 IDE 写操作期间让出读锁，安全重试，并保留取消和项目关闭时的终止行为。</p>
     ]]></change-notes>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.jcef</depends>

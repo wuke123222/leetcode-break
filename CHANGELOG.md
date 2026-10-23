@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 — 2026-10-23
+
+- Replace deprecated read-action APIs in project scanning with cancellable, non-blocking read actions.
+- Allow pending IDE writes to interrupt and retry scans without accumulating duplicate file entries.
+- Keep scan cancellation and project disposal connected to each read action.
+
 ## 0.1.0 — 2026-10-23
 
 - Embed the official LeetCode China and international websites in an IDE tool window.
