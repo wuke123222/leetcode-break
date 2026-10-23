@@ -2,7 +2,7 @@
 
 Practice on the official LeetCode website inside JetBrains IDEs, with local project-based problem recommendations. Free and open source under the [MIT license](LICENSE).
 
-[Source code](https://github.com/wuke123222/leetcode-break) · [Issues](https://github.com/wuke123222/leetcode-break/issues) · [Privacy](PRIVACY.md)
+[Marketplace](https://plugins.jetbrains.com/plugin/35417-leetcode-break) · [Source code](https://github.com/wuke123222/leetcode-break) · [Issues](https://github.com/wuke123222/leetcode-break/issues) · [Privacy](PRIVACY.md)
 
 在 IntelliJ IDEA 系列 IDE 里直接使用 LeetCode 官网刷题，并从当前项目的代码知识点推荐相关题目。
 
